@@ -26,8 +26,8 @@ async def init_tools() -> None:
         {
             "filesystem": {
                 "transport": "stdio",
-                "command": "npx",
-                "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+                "command": "uvx",
+                "args": ["mcp-server-time"],
             }
         }
     )
