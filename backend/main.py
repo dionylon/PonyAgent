@@ -1,16 +1,25 @@
 import logging
+from contextlib import asynccontextmanager
 
 import logging_config
 logging_config.setup()
 
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+
+from agent.tools import init_tools  # noqa: E402
 from routers.chat import router  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
-# --- FastAPI ---
-app = FastAPI(title="PonyAgent")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_tools()
+    yield
+
+
+app = FastAPI(title="PonyAgent", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
