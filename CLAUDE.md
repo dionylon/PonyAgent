@@ -30,6 +30,7 @@
 - `backend/agent/core.py` 是每个章节的**主要改动点**，路由层和前端原则上不动
 - 每个 Phase 的代码在上一 Phase 基础上叠加，不重写
 - 工具注册放 `backend/agent/tools.py`，记忆管理放 `backend/agent/memory.py`
+- 所有可通过环境变量调整的配置项（路径、阈值、超时、来源白名单等）统一放入 `backend/config.py` 的 `Settings` 类，禁止在业务代码中直接使用 `os.getenv` 或硬编码配置值
 
 ## 代码质量检查
 
