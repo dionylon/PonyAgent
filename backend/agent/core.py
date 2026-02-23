@@ -1,17 +1,16 @@
-# Ch.4: Tools + Tool Calling - ReAct 图（MCP 工具在服务启动时预加载）
+# Ch.5: 短期记忆持久化 - SqliteSaver（见 agent/memory.py）
 import asyncio
 from typing import AsyncGenerator
 
 from langchain_core.messages import AIMessageChunk, HumanMessage
-from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from providers.llm import get_llm
 
+from agent.memory import get_checkpoiner
 from agent.tools import get_cached_tools
 
 _llm = get_llm()
-_checkpointer = InMemorySaver()
 _graph = None
 _lock = asyncio.Lock()
 
@@ -21,6 +20,7 @@ async def _get_graph():
     if _graph is None:
         async with _lock:
             if _graph is None:
+                checkpointer = await get_checkpoiner()
                 tools = get_cached_tools()
                 llm_with_tools = _llm.bind_tools(tools)
 
@@ -34,7 +34,7 @@ async def _get_graph():
                     .add_edge(START, "chat")
                     .add_conditional_edges("chat", tools_condition)
                     .add_edge("tools", "chat")
-                    .compile(checkpointer=_checkpointer)
+                    .compile(checkpointer=checkpointer)
                 )
     return _graph
 
