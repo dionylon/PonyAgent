@@ -2,9 +2,9 @@
 import asyncio
 from typing import AsyncGenerator
 
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessageChunk, HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.graph import END, START, MessagesState, StateGraph
+from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from providers.llm import get_llm
 
@@ -44,5 +44,5 @@ async def stream_agent(message: str, thread_id: str = "default") -> AsyncGenerat
     config = {"configurable": {"thread_id": thread_id}}
     input_state = {"messages": [HumanMessage(content=message)]}
     async for chunk, _metadata in graph.astream(input_state, config=config, stream_mode="messages"):
-        if chunk.content:
+        if isinstance(chunk, AIMessageChunk) and chunk.content:
             yield chunk.content

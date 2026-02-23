@@ -45,3 +45,8 @@ def test_graph_has_correct_nodes():
     )
     assert "chat" in graph.nodes
     assert "tools" in graph.nodes
+
+
+def test_calculator_blocks_mro_escape():
+    with pytest.raises(Exception):
+        calculator.invoke({"expression": "(1).__class__.__mro__[-1].__subclasses__()"})

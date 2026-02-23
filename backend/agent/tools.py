@@ -6,6 +6,8 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 @tool
 def calculator(expression: str) -> str:
     """计算数学表达式，支持四则运算和 math 函数，如 '2 + 2'、'sqrt(16)'。"""
+    if "__" in expression:
+        raise ValueError("表达式不允许包含 dunder 属性访问")
     safe_globals = {"__builtins__": {}, **vars(math)}
     return str(eval(expression, safe_globals))
 
