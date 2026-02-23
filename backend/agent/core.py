@@ -7,7 +7,7 @@ from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from providers.llm import get_llm
 
-from agent.memory import get_checkpoiner
+from agent.memory import get_checkpointer
 from agent.tools import get_cached_tools
 
 _llm = get_llm()
@@ -20,7 +20,7 @@ async def _get_graph():
     if _graph is None:
         async with _lock:
             if _graph is None:
-                checkpointer = await get_checkpoiner()
+                checkpointer = await get_checkpointer()
                 tools = get_cached_tools()
                 llm_with_tools = _llm.bind_tools(tools)
 
