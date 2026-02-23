@@ -1,4 +1,12 @@
 import pytest
+from unittest.mock import AsyncMock, patch
+
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.graph import START, MessagesState, StateGraph
+from langgraph.prebuilt import ToolNode, tools_condition
+
+import agent.tools as tools_module
 from agent.tools import calculator
 
 
@@ -18,15 +26,10 @@ def test_calculator_blocks_import():
     with pytest.raises(Exception):
         calculator.invoke({"expression": "__import__('os').getcwd()"})
 
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.graph import END, START, MessagesState, StateGraph
-from langgraph.prebuilt import ToolNode, tools_condition
-
 
 def test_graph_has_correct_nodes():
     """验证 ReAct 图结构：chat 和 tools 节点都存在。"""
     import agent.core as core
-    from agent.tools import calculator
 
     tools = [calculator]
     llm_with_tools = core._llm.bind_tools(tools)
@@ -50,12 +53,6 @@ def test_graph_has_correct_nodes():
 def test_calculator_blocks_mro_escape():
     with pytest.raises(Exception):
         calculator.invoke({"expression": "(1).__class__.__mro__[-1].__subclasses__()"})
-
-
-import pytest
-from unittest.mock import AsyncMock, patch
-from langchain_mcp_adapters.client import MultiServerMCPClient
-import agent.tools as tools_module
 
 
 @pytest.fixture()

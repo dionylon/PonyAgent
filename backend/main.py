@@ -3,9 +3,9 @@ import logging
 import logging_config
 logging_config.setup()
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from routers.chat import router
+from fastapi import FastAPI  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from routers.chat import router  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

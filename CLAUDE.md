@@ -31,7 +31,24 @@
 - 每个 Phase 的代码在上一 Phase 基础上叠加，不重写
 - 工具注册放 `backend/agent/tools.py`，记忆管理放 `backend/agent/memory.py`
 
-## 章节进度
+## 代码质量检查
+
+每次对后端文件进行大改动后，必须执行以下检查：
+
+```bash
+# Lint（在 backend/ 目录下）
+uv run ruff check .
+
+# 语法检查（单文件快速验证）
+uv run python -m py_compile <file.py>
+```
+
+- `ruff` 已加入 dev 依赖，直接用 `uv run ruff check .` 扫描整个 backend
+- E402（import 顺序）：若 import 顺序有意为之（如 logging 初始化必须先于其他 import），在对应行加 `# noqa: E402` 抑制
+- F401（未使用 import）：直接删除，或用 `uv run ruff check --fix <file>` 自动修复
+- 所有 import 应集中在文件顶部，禁止散落在函数定义之间
+
+
 
 当前项目遵循 `ROADMAP.md` 中定义的三阶段 11 章计划：
 
