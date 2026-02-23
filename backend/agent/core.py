@@ -1,4 +1,4 @@
-# Ch.4: Tools + Tool Calling - 懒加载 ReAct 图（Ch.3 静态图无工具）
+# Ch.4: Tools + Tool Calling - ReAct 图（MCP 工具在服务启动时预加载）
 import asyncio
 from typing import AsyncGenerator
 
@@ -8,7 +8,7 @@ from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from providers.llm import get_llm
 
-from agent.tools import get_all_tools
+from agent.tools import get_cached_tools
 
 _llm = get_llm()
 _checkpointer = InMemorySaver()
@@ -21,7 +21,7 @@ async def _get_graph():
     if _graph is None:
         async with _lock:
             if _graph is None:
-                tools = await get_all_tools()
+                tools = get_cached_tools()
                 llm_with_tools = _llm.bind_tools(tools)
 
                 def chat_node(state: MessagesState):
