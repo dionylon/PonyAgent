@@ -1,10 +1,13 @@
-# Ch.1: 直接调用 LLM，无图结构（Ch.3 引入 StateGraph）
+# Ch.2: 流式输出 - 用 astream() 逐 token 推送（Ch.1 用 ainvoke 单次返回）
+from typing import AsyncGenerator
+
 from langchain_core.messages import HumanMessage
 from providers.llm import get_llm
 
 _llm = get_llm()
 
 
-async def invoke_agent(message: str) -> str:
-    response = await _llm.ainvoke([HumanMessage(content=message)])
-    return response.content
+async def stream_agent(message: str) -> AsyncGenerator[str, None]:
+    async for chunk in _llm.astream([HumanMessage(content=message)]):
+        if chunk.content:
+            yield chunk.content
