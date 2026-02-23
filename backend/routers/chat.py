@@ -21,7 +21,7 @@ async def chat(req: ChatRequest):
     async def event_gen():
         logger.info("chat request: thread=%s message=%r", req.thread_id, req.message[:80])
         try:
-            async for token in stream_agent(req.message):
+            async for token in stream_agent(req.message, req.thread_id):
                 yield {"data": json.dumps({"type": "text", "content": token}, ensure_ascii=False)}
             yield {"data": json.dumps({"type": "done"})}
         except Exception:
