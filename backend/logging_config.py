@@ -8,10 +8,9 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-LOG_DIR = "logs"
-LOG_FILE = os.path.join(LOG_DIR, "app.log")
+from config import settings
+
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-LOG_LEVEL = logging.DEBUG
 
 # 第三方库噪音日志降级
 _QUIET_LOGGERS = {
@@ -23,10 +22,13 @@ _QUIET_LOGGERS = {
 
 
 def setup() -> None:
-    os.makedirs(LOG_DIR, exist_ok=True)
+    log_level = logging.getLevelName(settings.log_level.upper())
+    log_file = os.path.join(settings.log_dir, "app.log")
+
+    os.makedirs(settings.log_dir, exist_ok=True)
 
     file_handler = TimedRotatingFileHandler(
-        LOG_FILE,
+        log_file,
         when="midnight",       # 每天零点切分
         interval=1,
         backupCount=14,        # 保留 14 天
@@ -42,7 +44,7 @@ def setup() -> None:
     console_handler.setFormatter(formatter)
 
     root = logging.getLogger()
-    root.setLevel(LOG_LEVEL)
+    root.setLevel(log_level)
     # 避免重复添加（uvicorn reload 时会多次调用）
     if not root.handlers:
         root.addHandler(file_handler)

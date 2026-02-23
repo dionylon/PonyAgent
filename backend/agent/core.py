@@ -10,9 +10,7 @@ from providers.llm import get_llm
 
 from agent.memory import get_checkpointer
 from agent.tools import get_cached_tools
-
-# 保留最近 8000 token，防止超出模型上下文窗口
-_MAX_TOKENS = 8000
+from config import settings
 
 _llm = get_llm()
 _graph = None
@@ -25,7 +23,7 @@ def _make_chat_node(llm_with_tools):
             state["messages"],
             strategy="last",
             token_counter=count_tokens_approximately,
-            max_tokens=_MAX_TOKENS,
+            max_tokens=settings.max_context_tokens,
             start_on="human",
             end_on=("human", "tool"),
             allow_partial=False,

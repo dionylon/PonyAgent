@@ -5,6 +5,8 @@ import math
 from langchain_core.tools import tool
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
+from config import settings
+
 logger = logging.getLogger(__name__)
 
 _cached_tools: list | None = None
@@ -32,7 +34,7 @@ async def init_tools() -> None:
         }
     )
     try:
-        mcp_tools = await asyncio.wait_for(client.get_tools(), timeout=10)
+        mcp_tools = await asyncio.wait_for(client.get_tools(), timeout=settings.mcp_timeout)
         logger.info("MCP filesystem 工具加载成功：%d 个工具", len(mcp_tools))
         _cached_tools = [calculator] + mcp_tools
     except Exception as e:

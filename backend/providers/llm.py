@@ -1,20 +1,12 @@
-import os
 from langchain.chat_models import init_chat_model
-from dotenv import load_dotenv
 
-load_dotenv()
+from config import settings
 
 
 def get_llm():
-    model = os.getenv("MODEL", "gpt-4o")
     kwargs = {}
-
-    base_url = os.getenv("OPENAI_BASE_URL")
-    if base_url:
-        kwargs["base_url"] = base_url
-
-    api_key = os.getenv("OPENAI_API_KEY")
-    if api_key:
-        kwargs["api_key"] = api_key
-
-    return init_chat_model(model, model_provider="openai", **kwargs)
+    if settings.openai_base_url:
+        kwargs["base_url"] = settings.openai_base_url
+    if settings.openai_api_key:
+        kwargs["api_key"] = settings.openai_api_key
+    return init_chat_model(settings.model, model_provider="openai", **kwargs)
