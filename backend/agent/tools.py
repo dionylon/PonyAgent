@@ -7,6 +7,8 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 logger = logging.getLogger(__name__)
 
+_cached_tools: list | None = None
+
 
 @tool
 def calculator(expression: str) -> str:
@@ -17,8 +19,9 @@ def calculator(expression: str) -> str:
     return str(eval(expression, safe_globals))
 
 
-async def get_all_tools() -> list:
-    """获取所有工具：calculator + MCP filesystem 工具（MCP 不可用时回退到仅 calculator）。"""
+async def init_tools() -> None:
+    """服务启动时调用：加载 MCP 工具并缓存。MCP 不可用时回退到仅 calculator。"""
+    global _cached_tools
     client = MultiServerMCPClient(
         {
             "filesystem": {
@@ -31,7 +34,14 @@ async def get_all_tools() -> list:
     try:
         mcp_tools = await asyncio.wait_for(client.get_tools(), timeout=10)
         logger.info("MCP filesystem 工具加载成功：%d 个工具", len(mcp_tools))
-        return [calculator] + mcp_tools
+        _cached_tools = [calculator] + mcp_tools
     except Exception as e:
         logger.warning("MCP 工具加载失败（%s），回退到仅 calculator", e)
-        return [calculator]
+        _cached_tools = [calculator]
+
+
+def get_cached_tools() -> list:
+    """返回已缓存的工具列表。必须先调用 init_tools()。"""
+    if _cached_tools is None:
+        raise RuntimeError("init_tools() 尚未调用，请在服务启动时（lifespan）调用")
+    return _cached_tools
